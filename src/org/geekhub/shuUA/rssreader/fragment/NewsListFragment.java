@@ -8,8 +8,8 @@ import android.widget.ListView;
 import com.actionbarsherlock.app.SherlockFragment;
 import org.geekhub.shuUA.rssreader.R;
 import org.geekhub.shuUA.rssreader.object.Article;
-import utill.MyListAdapter;
-import utill.XmlParser;
+import org.geekhub.shuUA.rssreader.utill.MyListAdapter;
+import org.geekhub.shuUA.rssreader.utill.XmlParser;
 
 import java.util.Vector;
 

@@ -1,4 +1,4 @@
-package utill;
+package org.geekhub.shuUA.rssreader.utill;
 
 import android.util.Log;
 import org.geekhub.shuUA.rssreader.object.Article;
