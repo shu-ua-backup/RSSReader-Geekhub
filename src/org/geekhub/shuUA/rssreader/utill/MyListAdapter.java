@@ -15,9 +15,8 @@ import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemor
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.download.HttpClientImageDownloader;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.nostra13.universalimageloader.utils.StorageUtils;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.geekhub.shuUA.rssreader.R;
 import org.geekhub.shuUA.rssreader.object.Article;
 
@@ -35,7 +34,7 @@ public class MyListAdapter extends ArrayAdapter<Article> {
     }
 
     public static class ViewHolder{
-        public TextView item1;
+        public TextView item1, dateTitle;
         public ImageView imageView;
     }
 
@@ -49,6 +48,7 @@ public class MyListAdapter extends ArrayAdapter<Article> {
             v = vi.inflate(R.layout.list_style, null);
             holder = new ViewHolder();
             holder.item1 = (TextView) v.findViewById(R.id.menu_title);
+            holder.dateTitle = (TextView) v.findViewById(R.id.date_title);
             holder.imageView = (ImageView) v.findViewById(R.id.img_title);
             v.setTag(holder);
         }
@@ -60,31 +60,37 @@ public class MyListAdapter extends ArrayAdapter<Article> {
 
         if (article != null) {
             holder.item1.setText(article.getTitle());
-
+            holder.dateTitle.setText(article.getPubDate());
             String imageUrl = article.getImgLink();
 
             File cacheDir = StorageUtils.getCacheDirectory(getContext());
 
             ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder((getContext()))
-                    .memoryCacheExtraOptions(200, 200) // width, height
-                    .discCacheExtraOptions(200, 200, Bitmap.CompressFormat.JPEG, 75) // width, height, compress format, quality
+                    .memoryCacheExtraOptions(120, 80) // width, height
+                    .discCacheExtraOptions(120, 80, Bitmap.CompressFormat.JPEG, 75) // width, height, compress format, quality
                     .threadPoolSize(4)
                     .threadPriority(6)
-                    .imageDownloader(new HttpClientImageDownloader(getContext(),new DefaultHttpClient()))
+                    .imageDownloader(new BaseImageDownloader(getContext()))
                     .denyCacheImageMultipleSizesInMemory()
                     .offOutOfMemoryHandling()
-                    .memoryCache(new UsingFreqLimitedMemoryCache(2 * 1024 * 1024)) // 2 Mb
+                    .memoryCache(new UsingFreqLimitedMemoryCache(5 * 1024 * 1024)) // 2 Mb
                     .discCache(new UnlimitedDiscCache(cacheDir))
                     .discCacheFileNameGenerator(new HashCodeFileNameGenerator())
                     .defaultDisplayImageOptions(DisplayImageOptions.createSimple())
                     .enableLogging()
                     .build();
 
+            DisplayImageOptions options = new DisplayImageOptions.Builder()
+                    .showStubImage(R.drawable.err)
+                    .showImageForEmptyUri(R.drawable.search)
+                    .showImageOnFail(R.drawable.err)
+                    .cacheInMemory()
+                    .cacheOnDisc()
+                    .build();
 
-            //ImageLoader.getInstance().init(config);
             ImageLoader imageLoader = ImageLoader.getInstance();
             imageLoader.init(config);
-            imageLoader.displayImage(imageUrl, holder.imageView);
+            imageLoader.displayImage(imageUrl, holder.imageView,options);
 
         }
         return v;

@@ -75,7 +75,7 @@ public class XmlParser {
         } catch (IOException e) {
            Log.e("1e13",e.toString());
         }
-
+        ArtCollection.add(art);
         return ArtCollection;
     }
 }
