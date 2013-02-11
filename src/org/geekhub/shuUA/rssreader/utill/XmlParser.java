@@ -29,6 +29,9 @@ public class XmlParser {
 
 
             DefaultHandler handler = new DefaultHandler() {
+
+                StringBuffer buffer = null;
+
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
                     if (qName.equalsIgnoreCase("item")) {
@@ -37,33 +40,36 @@ public class XmlParser {
                            art = new Article();
                        }
                         isItem = true;
-                        }
-                        if (qName.equalsIgnoreCase("enclosure")) {
-                            art.setImgLink(attributes.getValue("url"));
-                        }
+                       }
 
-                }
+                        buffer = new StringBuffer();
+                    }
 
 
                 @Override
                 public void endElement(String uri, String localName, String qName) throws SAXException {
-                    super.endElement(uri, localName, qName);
-                    if (isItem) {
-                        if (qName.equalsIgnoreCase("title")) {
-                            art.setTitle(Element);
-                        } else if (qName.equalsIgnoreCase("pheedo:origLink")) {
-                            art.setLink(Element);
-                        } else if (qName.equalsIgnoreCase("description")) {
-                            art.setContent(Element);
-                        } else if (qName.equalsIgnoreCase("pubDate")) {
-                            art.setPubDate(Element);
+                    if (qName.equals("title")) {
+                        art.setTitle(buffer.toString());
+                    } else if (qName.equals("pubDate")) {
+                        art.setPubDate(buffer.toString());
+                    } else if (qName.equals("description")) {
+                        int start = buffer.indexOf("http://hoopscsdn.s3.amazonaws.com");
+                        int end = buffer.indexOf(".jpg");
+                        int tag_end = buffer.indexOf("/>");
+                        if (start != -1 && end != -1) {
+                        art.setImgLink(buffer.toString().substring(start, end + ".jpg".length()));
+                        art.setContent(buffer.toString().substring(tag_end + "/>".length()));
                         }
+                    } else if (qName.equals("link")) {
+                        art.setLink(buffer.toString());
                     }
                 }
 
                 @Override
                 public void characters(char[] ch, int start, int length) throws SAXException {
-                    Element = new String(ch, start, length);
+                        if (buffer != null) {
+                            buffer.append(ch,start, length);
+                        }
                 }
             };
            saxParser.parse(Const.FEED_URL,handler);

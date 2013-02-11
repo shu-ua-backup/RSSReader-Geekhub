@@ -8,5 +8,5 @@ package org.geekhub.shuUA.rssreader.object;
  * To change this template use File | Settings | File Templates.
  */
 public class Const {
-    public static final String FEED_URL = "http://feeds.pheedo.com/feedout/syndicatedContent_categoryId_73";
+    public static final String FEED_URL = "http://www.hoopsworld.com/category/nba/feed/";
 }
