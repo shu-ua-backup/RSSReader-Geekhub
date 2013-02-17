@@ -21,6 +21,8 @@ import org.geekhub.shuUA.rssreader.R;
 import org.geekhub.shuUA.rssreader.object.Article;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class MyListAdapter extends ArrayAdapter<Article> {
@@ -60,7 +62,7 @@ public class MyListAdapter extends ArrayAdapter<Article> {
 
         if (article != null) {
             holder.item1.setText(article.getTitle());
-            holder.dateTitle.setText(article.getPubDate());
+            holder.dateTitle.setText(getDate(article.getPubDate()));
             String imageUrl = article.getImgLink();
 
             File cacheDir = StorageUtils.getCacheDirectory(getContext());
@@ -94,6 +96,25 @@ public class MyListAdapter extends ArrayAdapter<Article> {
 
         }
         return v;
+    }
+
+    private String getDate(Date date) {
+        String str;
+        long sec = (System.currentTimeMillis() - date.getTime()) / 1000;
+
+        if (sec < 60) {
+            str = Long.toString(sec) + " seconds ago";
+        } else if (sec < 60*60)  {
+            str = Long.toString(sec/60) + " minutes ago";
+        } else if (sec < 60*60*24) {
+            str = Long.toString(sec/60/60) + " hours ago";
+            //str = Long.toString(sec) + " hours ago";
+        } else {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+            str = dateFormat.format(date);
+        }
+
+        return str;
     }
 
 }

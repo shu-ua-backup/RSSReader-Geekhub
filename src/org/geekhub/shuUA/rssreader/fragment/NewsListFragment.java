@@ -1,12 +1,15 @@
 package org.geekhub.shuUA.rssreader.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import com.actionbarsherlock.app.SherlockFragment;
 import org.geekhub.shuUA.rssreader.R;
+import org.geekhub.shuUA.rssreader.activity.ArticleActivity;
 import org.geekhub.shuUA.rssreader.object.Article;
 import org.geekhub.shuUA.rssreader.utill.MyListAdapter;
 import org.geekhub.shuUA.rssreader.utill.XmlParser;
@@ -61,6 +64,16 @@ public class NewsListFragment extends SherlockFragment {
             lv = (ListView) getView().findViewById(R.id.news_list);
             MyListAdapter adapter = new MyListAdapter(getActivity(),R.id.news_list,ArtColl);
             lv.setAdapter(adapter);
+            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Intent intent2 = new Intent(getActivity(), ArticleActivity.class);
+                    intent2.putExtra("Title" , ArtColl.get(i).getTitle());
+                    intent2.putExtra("Content" , ArtColl.get(i).getContent());
+                    intent2.putExtra("Link" , ArtColl.get(i).getLink());
+                    startActivity(intent2);
+                }
+            });
         }
 
 

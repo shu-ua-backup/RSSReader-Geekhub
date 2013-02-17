@@ -1,5 +1,6 @@
 package org.geekhub.shuUA.rssreader.utill;
 
+import android.text.format.Time;
 import android.util.Log;
 import org.geekhub.shuUA.rssreader.object.Article;
 import org.geekhub.shuUA.rssreader.object.Const;
@@ -11,6 +12,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Vector;
 
 public class XmlParser {
@@ -26,7 +31,6 @@ public class XmlParser {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
-
 
             DefaultHandler handler = new DefaultHandler() {
 
@@ -51,7 +55,19 @@ public class XmlParser {
                     if (qName.equals("title")) {
                         art.setTitle(buffer.toString());
                     } else if (qName.equals("pubDate")) {
-                        art.setPubDate(buffer.toString());
+                        SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+                        try {
+                            Time now = new Time();
+                            now.format("EEE, dd MMM yyyy HH:mm:ss z");
+                            now.setToNow();
+                            //art.setPubDate(format.parse(now.toString()));
+                            Date date = format.parse(buffer.toString());
+                            //long mls = System.currentTimeMillis() - date.getTime();
+                            //date = new Date(mls);
+                            art.setPubDate(date);
+                        } catch (ParseException e) {
+                            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                        }
                     } else if (qName.equals("description")) {
                         int start = buffer.indexOf("http://hoopscsdn.s3.amazonaws.com");
                         int end = buffer.indexOf(".jpg");

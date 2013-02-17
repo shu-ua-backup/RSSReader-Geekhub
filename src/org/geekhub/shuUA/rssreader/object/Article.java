@@ -1,5 +1,7 @@
 package org.geekhub.shuUA.rssreader.object;
 
+import java.util.Date;
+
 /**
  * Created with IntelliJ IDEA.
  * User: shu
@@ -11,7 +13,7 @@ public class Article {
     private String title;
     private String link;
     private String content;
-    private String pubDate;
+    private Date pubDate;
     private String  imgLink;
 
 
@@ -31,11 +33,11 @@ public class Article {
         this.link = link;
     }
 
-    public String getPubDate() {
+    public Date getPubDate() {
         return pubDate;
     }
 
-    public void setPubDate(String pubDate) {
+    public void setPubDate(Date pubDate) {
         this.pubDate = pubDate;
     }
 
