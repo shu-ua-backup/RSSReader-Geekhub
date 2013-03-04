@@ -24,7 +24,7 @@ import java.util.Vector;
  * To change this template use File | Settings | File Templates.
  */
 public class NewsListFragment extends SherlockFragment {
-   Vector<Article> ArtColl;
+    static Vector<Article> ArtColl;
     ListView lv;
 
 
@@ -35,10 +35,11 @@ public class NewsListFragment extends SherlockFragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-
-        getData();
+        if (ArtColl == null) {
+            getData();
+        }
         getList();
-        super.onViewCreated(view, savedInstanceState);    
+        super.onViewCreated(view, savedInstanceState);
     }
 
     public void getData() {
@@ -46,15 +47,15 @@ public class NewsListFragment extends SherlockFragment {
             @Override
             public void run() {
                 ArtColl = new XmlParser().parseXml();
-                ArtColl.getClass();
+
             }
         });
 
         thread.start();
         try {
-            thread.join(10000);
+            thread.join(15000);
         } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
     }
 
@@ -78,4 +79,6 @@ public class NewsListFragment extends SherlockFragment {
 
 
     }
+
+
 }

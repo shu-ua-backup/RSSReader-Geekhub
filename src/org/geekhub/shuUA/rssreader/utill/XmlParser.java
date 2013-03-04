@@ -39,15 +39,15 @@ public class XmlParser {
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
                     if (qName.equalsIgnoreCase("item")) {
-                       if (art != null && isItem ) {
-                           ArtCollection.add(art);
-                           art = new Article();
-                       }
+                        if (art != null && isItem ) {
+                            ArtCollection.add(art);
+                            art = new Article();
+                        }
                         isItem = true;
-                       }
-
-                        buffer = new StringBuffer();
                     }
+
+                    buffer = new StringBuffer();
+                }
 
 
                 @Override
@@ -73,8 +73,8 @@ public class XmlParser {
                         int end = buffer.indexOf(".jpg");
                         int tag_end = buffer.indexOf("/>");
                         if (start != -1 && end != -1) {
-                        art.setImgLink(buffer.toString().substring(start, end + ".jpg".length()));
-                        art.setContent(buffer.toString().substring(tag_end + "/>".length()));
+                            art.setImgLink(buffer.toString().substring(start, end + ".jpg".length()));
+                            art.setContent(buffer.toString().substring(tag_end + "/>".length()));
                         }
                     } else if (qName.equals("link")) {
                         art.setLink(buffer.toString());
@@ -83,19 +83,19 @@ public class XmlParser {
 
                 @Override
                 public void characters(char[] ch, int start, int length) throws SAXException {
-                        if (buffer != null) {
-                            buffer.append(ch,start, length);
-                        }
+                    if (buffer != null) {
+                        buffer.append(ch,start, length);
+                    }
                 }
             };
-           saxParser.parse(Const.FEED_URL,handler);
-           ArtCollection.isEmpty();
+            saxParser.parse(Const.FEED_URL,handler);
+            ArtCollection.isEmpty();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (SAXException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (IOException e) {
-           Log.e("1e13",e.toString());
+            Log.e("1e13",e.toString());
         }
         ArtCollection.add(art);
         return ArtCollection;

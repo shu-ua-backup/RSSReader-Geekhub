@@ -24,4 +24,9 @@ public class ArticleActivity extends SherlockFragmentActivity{
             getSupportFragmentManager().beginTransaction().add(R.id.article_frag, articleFragment).commit();
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }
