@@ -11,6 +11,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import org.geekhub.shuUA.rssreader.R;
+import org.geekhub.shuUA.rssreader.object.Article;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,7 +24,7 @@ import org.geekhub.shuUA.rssreader.R;
 public class ArticleFragment extends SherlockFragment {
     private static String link, title, content;
     TextView tw;
-    private Menu OptMenu;
+    public Article article;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,6 +49,8 @@ public class ArticleFragment extends SherlockFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.like:
+                item.setIcon(R.drawable.ic_menu_liked);
+                Like();
                 break;
             case R.id.share:
                 Intent sendIntent = new Intent();
@@ -67,9 +70,10 @@ public class ArticleFragment extends SherlockFragment {
         inflater.inflate(R.menu.article_menu, menu);
     }
 
-    private void setLikeButtonImage(boolean check) {
-
+    private void Like() {
+       article.saveToDB(getActivity());
     }
+
 
 
 }

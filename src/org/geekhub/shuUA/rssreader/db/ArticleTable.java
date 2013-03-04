@@ -1,7 +1,9 @@
 package org.geekhub.shuUA.rssreader.db;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-
+import org.geekhub.shuUA.rssreader.object.Article;
 
 
 public class ArticleTable {
@@ -37,7 +39,7 @@ public class ArticleTable {
             + COLUMN_LINK + " TEXT NOT NULL, "
             + COLUMN_PUBDATE + " TEXT NOT NULL, "
             + COLUMN_IMGLINK + " TEXT NOT NULL,"
-            + COLUMN_LIKE + "tinyint(1)" + ")";
+            + COLUMN_LIKE + " tinyint(1) " + ")";
 
     public static void onCreate(SQLiteDatabase db) {
         db.execSQL(DATABASE_CREATE);
@@ -46,5 +48,25 @@ public class ArticleTable {
     public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
         onCreate(db);
+    }
+
+    public static void saveArticleToDB(Context context, Article article)
+    {
+        ContentValues cv = new ContentValues();
+
+        cv.put(COLUMN_CONTENT,article.getContent());
+        cv.put(COLUMN_TITLE,article.getTitle());
+        cv.put(COLUMN_IMGLINK,article.getImgLink());
+        cv.put(COLUMN_PUBDATE,article.getPubDate().getTime());
+        cv.put(COLUMN_LINK,article.getLink());
+
+        if (article.getLike()) {
+           cv.put(COLUMN_LIKE,1);
+        } else {
+           cv.put(COLUMN_LIKE,0);
+        }
+
+        context.getContentResolver().insert(ArticlesContentProvider.CONTENT_URI, cv);
+
     }
 }

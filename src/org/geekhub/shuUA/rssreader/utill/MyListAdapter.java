@@ -1,13 +1,13 @@
 package org.geekhub.shuUA.rssreader.utill;
 
-import android.app.Activity;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
@@ -18,61 +18,44 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 import org.geekhub.shuUA.rssreader.R;
-import org.geekhub.shuUA.rssreader.object.Article;
+import org.geekhub.shuUA.rssreader.db.ArticleTable;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 
-public class MyListAdapter extends ArrayAdapter<Article> {
-    private List<Article> entries;
-    private Activity activity;
+public class MyListAdapter extends SimpleCursorAdapter {
 
-    public MyListAdapter(Activity a, int textViewResourceId, List<Article> entries) {
-        super(a,textViewResourceId,entries);
-        this.entries = entries;
-        this.activity = a;
+    private Cursor c;
+    private Context context;
+
+    public MyListAdapter(Context context, int layout, Cursor c, String[] from, int[] to) {
+        super(context, layout, c, from, to);
+        this.c = c;
+        this.context = context;
     }
 
-    public static class ViewHolder{
-        public TextView item1, dateTitle;
-        public ImageView imageView;
-    }
-
-    @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        View v = convertView;
-        final ViewHolder holder;
+    public View getView(int pos, View inView, ViewGroup parent) {
+        View v = inView;
         if (v == null) {
-            LayoutInflater vi =
-                    (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = vi.inflate(R.layout.list_style, null);
-            holder = new ViewHolder();
-            holder.item1 = (TextView) v.findViewById(R.id.menu_title);
-            holder.dateTitle = (TextView) v.findViewById(R.id.date_title);
-            holder.imageView = (ImageView) v.findViewById(R.id.img_title);
-            v.setTag(holder);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            v = inflater.inflate(R.layout.list_style, null);
         }
-        else {
-            holder=(ViewHolder)v.getTag();
-        }
+        this.c.moveToPosition(pos);
+        String title = this.c.getString(this.c.getColumnIndex(ArticleTable.COLUMN_TITLE));
+        String date = this.c.getString(this.c.getColumnIndex(ArticleTable.COLUMN_PUBDATE));
+        String imgLink = this.c.getString(this.c.getColumnIndex(ArticleTable.COLUMN_IMGLINK));
 
-        Article article = entries.get(position);
+        ImageView iv = (ImageView) v.findViewById(R.id.img_title);
+        if (imgLink != null) {
 
-        if (article != null) {
-            holder.item1.setText(article.getTitle());
-            holder.dateTitle.setText(getDate(article.getPubDate()));
-            String imageUrl = article.getImgLink();
+            File cacheDir = StorageUtils.getCacheDirectory(context);
 
-            File cacheDir = StorageUtils.getCacheDirectory(getContext());
-
-            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder((getContext()))
+            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
                     .memoryCacheExtraOptions(120, 80) // width, height
                     .discCacheExtraOptions(120, 80, Bitmap.CompressFormat.JPEG, 75) // width, height, compress format, quality
                     .threadPoolSize(4)
                     .threadPriority(6)
-                    .imageDownloader(new BaseImageDownloader(getContext()))
+                    .imageDownloader(new BaseImageDownloader(context))
                     .denyCacheImageMultipleSizesInMemory()
                     .offOutOfMemoryHandling()
                     .memoryCache(new UsingFreqLimitedMemoryCache(5 * 1024 * 1024)) // 2 Mb
@@ -92,19 +75,26 @@ public class MyListAdapter extends ArrayAdapter<Article> {
 
             ImageLoader imageLoader = ImageLoader.getInstance();
             imageLoader.init(config);
-            imageLoader.displayImage(imageUrl, holder.imageView,options);
+            imageLoader.displayImage(imgLink, iv,options);
 
         }
-        return v;
+
+        TextView tvdate = (TextView) v.findViewById(R.id.date_title);
+        tvdate.setText(getDate(date));
+
+        TextView tvtitle = (TextView) v.findViewById(R.id.menu_title);
+        tvtitle.setText(title);
+        return(v);
     }
 
-    private String getDate(Date date) {
+    private String getDate(String strdate) {
         String str;
-        long sec = (System.currentTimeMillis() - date.getTime()) / 1000;
+        long date = Long.valueOf(strdate);
+        long sec = (System.currentTimeMillis() - date) / 1000;
 
         if (sec < 60) {
             str = Long.toString(sec) + " seconds ago";
-        } else if (sec < 60*60)  {
+        } else if (sec < 60*60) {
             str = Long.toString(sec/60) + " minutes ago";
         } else if (sec < 60*60*24) {
             str = Long.toString(sec/60/60) + " hours ago";
@@ -116,5 +106,7 @@ public class MyListAdapter extends ArrayAdapter<Article> {
 
         return str;
     }
+
+
 
 }

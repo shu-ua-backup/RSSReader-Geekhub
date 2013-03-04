@@ -1,5 +1,8 @@
 package org.geekhub.shuUA.rssreader.object;
 
+import android.content.Context;
+import org.geekhub.shuUA.rssreader.db.ArticleTable;
+
 import java.util.Date;
 
 /**
@@ -15,6 +18,7 @@ public class Article {
     private String content;
     private Date pubDate;
     private String  imgLink;
+    private Boolean like;
 
 
     public String getTitle() {
@@ -55,5 +59,19 @@ public class Article {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Boolean getLike() {
+        return like;
+    }
+
+    public void setLike(Boolean like) {
+        this.like = like;
+    }
+
+    public Article saveToDB(Context context) {
+        ArticleTable.saveArticleToDB(context, this);
+
+        return this;
     }
 }

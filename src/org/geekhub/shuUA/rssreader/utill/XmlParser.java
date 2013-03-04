@@ -1,5 +1,6 @@
 package org.geekhub.shuUA.rssreader.utill;
 
+import android.content.Context;
 import android.text.format.Time;
 import android.util.Log;
 import org.geekhub.shuUA.rssreader.object.Article;
@@ -16,17 +17,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Vector;
 
 public class XmlParser {
 
-    Vector<Article> ArtCollection = new Vector<Article>();
     int i=0;
     boolean isItem = false;
     String Element;
     Article art = new Article();
 
-    public Vector<Article> parseXml() {
+    public void parseXml(final Context context) {
 
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -40,7 +39,7 @@ public class XmlParser {
                 public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
                     if (qName.equalsIgnoreCase("item")) {
                         if (art != null && isItem ) {
-                            ArtCollection.add(art);
+                            art.saveToDB(context);
                             art = new Article();
                         }
                         isItem = true;
@@ -54,6 +53,7 @@ public class XmlParser {
                 public void endElement(String uri, String localName, String qName) throws SAXException {
                     if (qName.equals("title")) {
                         art.setTitle(buffer.toString());
+                        art.setLike(false);
                     } else if (qName.equals("pubDate")) {
                         SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
                         try {
@@ -89,7 +89,6 @@ public class XmlParser {
                 }
             };
             saxParser.parse(Const.FEED_URL,handler);
-            ArtCollection.isEmpty();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (SAXException e) {
@@ -97,7 +96,6 @@ public class XmlParser {
         } catch (IOException e) {
             Log.e("1e13",e.toString());
         }
-        ArtCollection.add(art);
-        return ArtCollection;
+        art.saveToDB(context);
     }
 }

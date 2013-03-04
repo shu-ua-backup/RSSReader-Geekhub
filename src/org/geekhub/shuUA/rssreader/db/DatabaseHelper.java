@@ -15,7 +15,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     private static final int DB_VERSION = 1;
-    private static final String DB_NAME = "geekhub.db";
+    private static final String DB_NAME = "rss_geek.db";
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -30,4 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i2) {
         ArticleTable.onUpgrade(sqLiteDatabase,i,i2);
     }
+
+
+
 }
