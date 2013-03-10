@@ -5,6 +5,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.format.Time;
 import android.util.Log;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.geekhub.shuUA.rssreader.db.ArticleTable;
 import org.geekhub.shuUA.rssreader.db.DatabaseHelper;
 import org.geekhub.shuUA.rssreader.object.Article;
@@ -16,7 +20,10 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -84,10 +91,14 @@ public class XmlParser {
                     } else if (qName.equals("description")) {
                         int start = buffer.indexOf("http://hoopscsdn.s3.amazonaws.com");
                         int end = buffer.indexOf(".jpg");
-                        int tag_end = buffer.indexOf("/>");
                         if (start != -1 && end != -1) {
                             art.setImgLink(buffer.toString().substring(start, end + ".jpg".length()));
-                            art.setContent(buffer.toString().substring(tag_end + "/>".length()));
+
+                            try {
+                                art.setContent(getFullText(art.getLink(),buffer));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                     } else if (qName.equals("link")) {
                         art.setLink(buffer.toString());
@@ -118,5 +129,40 @@ public class XmlParser {
         }
 
 
+    }
+
+    private String getFullText(String link,StringBuffer buffer) throws IOException {
+        HttpClient client = new DefaultHttpClient();
+        HttpGet request = new HttpGet(link);
+        HttpResponse response = client.execute(request);
+
+        String html = "";
+        InputStream in = response.getEntity().getContent();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        StringBuilder str = new StringBuilder();
+        String line = null;
+        while((line = reader.readLine()) != null)
+        {
+            str.append(line);
+        }
+        in.close();
+
+        String tableborder = "<table border=";
+        int start = str.indexOf("<div class=\"entry\">");
+        int end = str.indexOf(tableborder,start);
+
+        if (end < start) {
+                end = str.indexOf("</div>",start);
+            }
+
+        if (start < 1) {
+            int tag_end = buffer.indexOf("/>");
+            html = (buffer.toString().substring(tag_end + "/>".length()));
+        }  else {
+            html = (str.toString().substring(start, end));
+        }
+
+
+        return html;
     }
 }
