@@ -62,6 +62,7 @@ public class NewsListFragment extends SherlockFragment implements LoaderManager.
                 break;
             case R.id.refresh:
                 getData();
+                getListFromDB();
         }
 
 
@@ -80,7 +81,6 @@ public class NewsListFragment extends SherlockFragment implements LoaderManager.
             }
         });
         thread.start();
-        getListFromDB();
     }
 
 
@@ -101,7 +101,7 @@ public class NewsListFragment extends SherlockFragment implements LoaderManager.
 
         DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
         database = dbHelper.getWritableDatabase();
-        Cursor cursor = database.query(ArticleTable.TABLE_ARTICLES, null, null, null , null, null, null);
+        Cursor cursor = database.query(ArticleTable.TABLE_ARTICLES, null, null, null , null, null, ArticleTable.COLUMN_PUBDATE + " DESC");
         getActivity().startManagingCursor(cursor);
         String[] from = new String[] {ArticleTable.COLUMN_TITLE, ArticleTable.COLUMN_PUBDATE, ArticleTable.COLUMN_IMGLINK };
         int[] to = new int[] { R.id.menu_title, R.id.date_title, R.id.img_title };

@@ -54,7 +54,7 @@ public class LikeListFragment extends SherlockFragment implements LoaderManager.
     public void getListFromDB() {
         DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
         database = dbHelper.getWritableDatabase();
-        Cursor cursor = database.query(ArticleTable.TABLE_ARTICLES, null, ArticleTable.COLUMN_LIKE + "=1", null,null,null,null);
+        Cursor cursor = database.query(ArticleTable.TABLE_ARTICLES, null, ArticleTable.COLUMN_LIKE + "=1", null,null,null,ArticleTable.COLUMN_PUBDATE + " DESC");
 
         getActivity().startManagingCursor(cursor);
         String[] from = new String[] {ArticleTable.COLUMN_TITLE, ArticleTable.COLUMN_PUBDATE, ArticleTable.COLUMN_IMGLINK };
