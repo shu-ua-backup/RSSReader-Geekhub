@@ -1,8 +1,12 @@
 package org.geekhub.shuUA.rssreader.utill;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.text.format.Time;
 import android.util.Log;
+import org.geekhub.shuUA.rssreader.db.ArticleTable;
+import org.geekhub.shuUA.rssreader.db.DatabaseHelper;
 import org.geekhub.shuUA.rssreader.object.Article;
 import org.geekhub.shuUA.rssreader.object.Const;
 import org.xml.sax.Attributes;
@@ -28,9 +32,11 @@ public class XmlParser {
     public void parseXml(final Context context) {
 
         try {
+            final SQLiteDatabase database;
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
-
+            DatabaseHelper dbHelper = new DatabaseHelper(context);
+            database = dbHelper.getWritableDatabase();
             DefaultHandler handler = new DefaultHandler() {
 
                 StringBuffer buffer = null;
@@ -39,7 +45,14 @@ public class XmlParser {
                 public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
                     if (qName.equalsIgnoreCase("item")) {
                         if (art != null && isItem ) {
-                            art.saveToDB(context);
+                            Cursor cursor = database.query(ArticleTable.TABLE_ARTICLES, null,
+                                    ArticleTable.COLUMN_TITLE + " in ('" + art.getTitle() + "')",
+                                    null,null,null,null);
+
+                            if (cursor.getCount() == 0) {
+                                art.saveToDB(context);
+                            }
+
                             art = new Article();
                         }
                         isItem = true;
@@ -89,6 +102,13 @@ public class XmlParser {
                 }
             };
             saxParser.parse(Const.FEED_URL,handler);
+            Cursor cursor = database.query(ArticleTable.TABLE_ARTICLES, null,
+                    ArticleTable.COLUMN_TITLE + " in ('" + art.getTitle() + "')",
+                    null,null,null,null);
+            if (cursor.getCount() == 0) {
+                art.saveToDB(context);
+            }
+
         } catch (ParserConfigurationException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (SAXException e) {
@@ -96,6 +116,7 @@ public class XmlParser {
         } catch (IOException e) {
             Log.e("1e13",e.toString());
         }
-        art.saveToDB(context);
+
+
     }
 }

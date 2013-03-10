@@ -5,17 +5,11 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <FrameLayout
-            android:id="@+id/article_frag"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-        />
-
     <ListView
-            android:id="@+id/news_list"
+            android:id="@+id/like_listview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:dividerHeight="2dp"
-    />
+            />
 
 </LinearLayout>

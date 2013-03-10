@@ -19,6 +19,7 @@ public class ArticleActivity extends SherlockFragmentActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.article_act);
 
+
         if (savedInstanceState == null) {
             ArticleFragment articleFragment = new ArticleFragment();
             getSupportFragmentManager().beginTransaction().add(R.id.article_frag, articleFragment).commit();

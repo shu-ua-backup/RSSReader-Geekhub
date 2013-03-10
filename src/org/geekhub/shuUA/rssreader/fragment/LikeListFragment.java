@@ -13,20 +13,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import org.geekhub.shuUA.rssreader.R;
 import org.geekhub.shuUA.rssreader.activity.ArticleActivity;
-import org.geekhub.shuUA.rssreader.activity.LikeListActivity;
 import org.geekhub.shuUA.rssreader.db.ArticleTable;
 import org.geekhub.shuUA.rssreader.db.ArticlesContentProvider;
 import org.geekhub.shuUA.rssreader.db.DatabaseHelper;
 import org.geekhub.shuUA.rssreader.utill.MyListAdapter;
-import org.geekhub.shuUA.rssreader.utill.XmlParser;
 
-
-public class NewsListFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class LikeListFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
     ListView lv;
     private SQLiteDatabase database;
     MyListAdapter scAdapter;
@@ -34,55 +28,16 @@ public class NewsListFragment extends SherlockFragment implements LoaderManager.
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        return inflater.inflate(R.layout.news_list_frag,container,false);
+        return inflater.inflate(R.layout.likelist_frag,container,false);
     }
+
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         getListFromDB();
-        getData();
+        lvOnClick();
         super.onViewCreated(view, savedInstanceState);
     }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
-        super.onCreateOptionsMenu(menu,inflater);
-        inflater.inflate(R.menu.list_menu,menu);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.show_all:
-                Intent intent1 = new Intent(getActivity(), LikeListActivity.class);
-                startActivity(intent1);
-                break;
-            case R.id.refresh:
-                getData();
-        }
-
-
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void getData() {
-        DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
-        //dbHelper.onUpgrade(database,1,2);
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                new XmlParser().parseXml(getActivity());
-
-            }
-        });
-        thread.start();
-        getListFromDB();
-    }
-
 
     public void lvOnClick () {
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -93,23 +48,21 @@ public class NewsListFragment extends SherlockFragment implements LoaderManager.
                 Intent intent2 = new Intent(getActivity(), ArticleActivity.class);
                 intent2.putExtra("ID" , id);
                 startActivity(intent2);
-
             }
         });
     }
     public void getListFromDB() {
-
         DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
         database = dbHelper.getWritableDatabase();
-        Cursor cursor = database.query(ArticleTable.TABLE_ARTICLES, null, null, null , null, null, null);
+        Cursor cursor = database.query(ArticleTable.TABLE_ARTICLES, null, ArticleTable.COLUMN_LIKE + "=1", null,null,null,null);
+
         getActivity().startManagingCursor(cursor);
         String[] from = new String[] {ArticleTable.COLUMN_TITLE, ArticleTable.COLUMN_PUBDATE, ArticleTable.COLUMN_IMGLINK };
         int[] to = new int[] { R.id.menu_title, R.id.date_title, R.id.img_title };
         getLoaderManager().initLoader(0, null, this);
         scAdapter = new MyListAdapter(getActivity(), R.layout.list_style, cursor, from, to);
-        lv = (ListView) getView().findViewById(R.id.news_list);
+        lv = (ListView) getView().findViewById(R.id.like_listview);
         lv.setAdapter(scAdapter);
-        lvOnClick();
     }
 
 

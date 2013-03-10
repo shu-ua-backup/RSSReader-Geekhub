@@ -17,6 +17,7 @@
                   android:authorities="org.geekhub.shuUA.rssreader.db"/>
 
         <activity android:name=".activity.ArticleActivity"></activity>
+        <activity android:name=".activity.LikeListActivity"></activity>
 
     </application>
     <uses-permission android:name="android.permission.INTERNET"/>
