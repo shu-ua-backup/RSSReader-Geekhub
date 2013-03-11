@@ -31,12 +31,12 @@ import java.util.Locale;
 
 public class XmlParser {
 
-    int i=0;
+    int count=0;
     boolean isItem = false;
     String Element;
     Article art = new Article();
 
-    public void parseXml(final Context context) {
+    public boolean parseXml(final Context context) {
 
         try {
             final SQLiteDatabase database;
@@ -48,16 +48,31 @@ public class XmlParser {
 
                 StringBuffer buffer = null;
 
+                private boolean checkDatabase() {
+                    Cursor cursor = database.query(ArticleTable.TABLE_ARTICLES, null,
+                            ArticleTable.COLUMN_TITLE + " in ('" + art.getTitle() + "')",
+                            null,null,null,null);
+
+                    if (cursor.getCount() == 0) {
+                        cursor.close();
+                        return true;
+                    }  else {
+                        cursor.close();
+                        return false;
+                    }
+                }
+
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
                     if (qName.equalsIgnoreCase("item")) {
                         if (art != null && isItem ) {
-                            Cursor cursor = database.query(ArticleTable.TABLE_ARTICLES, null,
-                                    ArticleTable.COLUMN_TITLE + " in ('" + art.getTitle() + "')",
-                                    null,null,null,null);
 
-                            if (cursor.getCount() == 0) {
+
+                            if (checkDatabase()) {
                                 art.saveToDB(context);
+                                count++;
+                            } else {
+                                return;
                             }
 
                             art = new Article();
@@ -93,12 +108,13 @@ public class XmlParser {
                         int end = buffer.indexOf(".jpg");
                         if (start != -1 && end != -1) {
                             art.setImgLink(buffer.toString().substring(start, end + ".jpg".length()));
-
+                            if (checkDatabase()) {
                             try {
                                 art.setContent(getFullText(art.getLink(),buffer));
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
+                        }
                         }
                     } else if (qName.equals("link")) {
                         art.setLink(buffer.toString());
@@ -128,7 +144,11 @@ public class XmlParser {
             Log.e("1e13",e.toString());
         }
 
+        if (count == 0) {
+            return false;
+        }
 
+        return true;
     }
 
     private String getFullText(String link,StringBuffer buffer) throws IOException {

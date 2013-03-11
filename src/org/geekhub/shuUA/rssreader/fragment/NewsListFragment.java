@@ -30,6 +30,7 @@ public class NewsListFragment extends SherlockFragment implements LoaderManager.
     ListView lv;
     private SQLiteDatabase database;
     MyListAdapter scAdapter;
+    boolean ThreadStarted;
 
 
     @Override
@@ -76,11 +77,25 @@ public class NewsListFragment extends SherlockFragment implements LoaderManager.
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                new XmlParser().parseXml(getActivity());
-
+                ThreadStarted = true;
+                if (new XmlParser().parseXml(getActivity())) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            getListFromDB();
+                        }
+                    });
+                };
+                ThreadStarted = false;
             }
         });
-        thread.start();
+
+        if (ThreadStarted) {
+            getListFromDB();
+        } else {
+            thread.start();
+        }
+
     }
 
 

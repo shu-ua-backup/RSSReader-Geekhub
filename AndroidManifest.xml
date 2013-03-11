@@ -3,8 +3,8 @@
           package="org.geekhub.shuUA.rssreader">
     <uses-sdk android:minSdkVersion="8"/>
     <application android:label="@string/app_name"
-                 android:icon="@drawable/ic_launcher"
-                 android:theme="@style/Theme.Sherlock">
+                 android:icon="@drawable/logo"
+                 android:theme="@style/Theme.MyTheme">
         <activity android:name=".activity.NewsListActivity"
                   android:label="@string/app_name">
             <intent-filter>

@@ -3,11 +3,12 @@ package org.geekhub.shuUA.rssreader.fragment;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.webkit.WebView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -17,13 +18,6 @@ import org.geekhub.shuUA.rssreader.db.ArticleTable;
 import org.geekhub.shuUA.rssreader.db.DatabaseHelper;
 import org.geekhub.shuUA.rssreader.object.Article;
 
-/**
- * Created with IntelliJ IDEA.
- * User: shu
- * Date: 13.02.13
- * Time: 15:58
- * To change this template use File | Settings | File Templates.
- */
 
 public class ArticleFragment extends SherlockFragment {
     private static int id;
@@ -32,7 +26,7 @@ public class ArticleFragment extends SherlockFragment {
     DatabaseHelper dbHelper;
     SQLiteDatabase database;
     private static String content,title;
-    TextView tw;
+    WebView tw;
     public Article article;
 
     @Override
@@ -45,8 +39,13 @@ public class ArticleFragment extends SherlockFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setHasOptionsMenu(true);
-        id = getActivity().getIntent().getIntExtra("ID",0);
 
+        if (Build.VERSION.SDK_INT >=11) {
+            getSherlockActivity().invalidateOptionsMenu();
+            getSherlockActivity().openOptionsMenu();
+        }
+
+        id = getActivity().getIntent().getIntExtra("ID",0);
         dbHelper = new DatabaseHelper(getActivity());
         database = dbHelper.getWritableDatabase();
         Cursor cursor = database.query(ArticleTable.TABLE_ARTICLES, null, ArticleTable.COLUMN_ID + "=" + id, null,null,null,null);
@@ -64,8 +63,8 @@ public class ArticleFragment extends SherlockFragment {
         Like(mMenu.findItem(R.id.like));
 
         getSherlockActivity().getSupportActionBar().setTitle(title);
-        tw = (TextView) getView().findViewById(R.id.art_content);
-        tw.setText(content);
+        tw = (WebView) getView().findViewById(R.id.art_content);
+        tw.loadData(content,"text/html",null);
     }
 
 
@@ -91,8 +90,19 @@ public class ArticleFragment extends SherlockFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+
+       inflater.inflate(R.menu.article_menu, menu);
+
+        if (Build.VERSION.SDK_INT >=11 && mMenu != null) {
+            Like(mMenu.findItem(R.id.like));
+        }
         mMenu = menu;
-        inflater.inflate(R.menu.article_menu, menu);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        mMenu = menu;
     }
 
     private void Like(MenuItem item) {
