@@ -93,7 +93,7 @@ public class ArticleFragment extends SherlockFragment {
 
        inflater.inflate(R.menu.article_menu, menu);
 
-        if (Build.VERSION.SDK_INT >=11 && mMenu != null) {
+        if (Build.VERSION.SDK_INT >=17 && mMenu != null) {
             Like(mMenu.findItem(R.id.like));
         }
         mMenu = menu;
